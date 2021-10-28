@@ -1,0 +1,48 @@
+---
+title: "Lab 4"
+author: "Yurii Stashchuk"
+date: "28 10 2021"
+output: html_document
+---
+
+```{r}
+library(DBI)
+library(RSQLite)
+
+conn <- dbConnect(RSQLite::SQLite(), "database.sqlite")
+```
+
+## 1. Назва статті (Title), тип виступу (EventType). Необхідно вибрати тільки статті с типом виступу Spotlight. Сортування по назві статті.
+
+```{r}
+res_1 <- dbSendQuery(conn, "SELECT Title FROM Papers WHERE EventType = 'Spotlight' ORDER BY Title")
+df_1 <- dbFetch(res_1, n=10)
+df_1
+```
+
+## 2. Ім’я автора (Name), Назва статті (Title). Необхідно вивести всі назви статей для автора «Josh Tenenbaum». Сортування по назві статті.
+
+```{r}
+res_2 <- dbSendQuery(conn, "SELECT Papers.Title, Authors.Name FROM Papers INNER JOIN PaperAuthors ON 
+                     Papers.Id = PaperAuthors.PaperId INNER JOIN Authors ON Authors.Id = PaperAuthors.AuthorId 
+                     WHERE Name = 'Josh Tenenbaum' ORDER BY Papers.Title")
+df_2 <- dbFetch(res_2, n=10)
+df_2
+```
+
+## 3. Вибрати всі назви статей (Title), в яких є слово «statistical». Сортування по назві статті.
+
+```{r}
+res_3 <- dbSendQuery(conn, "SELECT Title FROM Papers WHERE Title LIKE '%statistical%' ORDER BY Title")
+df_3 <- dbFetch(res_3, n=10)
+df_3
+```
+## 4. Ім’я автору (Name), кількість статей по кожному автору (NumPapers). Сортування по кількості статей від більшої кількості до меньшої.
+
+```{r}
+res_4 <- dbSendQuery(conn, "SELECT Authors.Name, COUNT(PaperAuthors.PaperId) AS NumPapers FROM PaperAuthors
+                      INNER JOIN Authors ON Authors.Id = PaperAuthors.AuthorId
+                     GROUP BY Authors.Name
+                     ORDER BY NumPapers DESC")
+df_4 <- dbFetch(res_4, n=10)
+```

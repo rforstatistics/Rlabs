@@ -1,0 +1,40 @@
+---
+title: "Lab 3"
+author: "Yurii Stashchuk"
+date: "28 10 2021"
+output: html_document
+---
+
+```{r}
+library(rvest)
+library(tidyverse)
+
+url <- "https://www.imdb.com/search/title/?count=100&release_date=2017,2017&title_ty"
+html <- read_html(url)
+rank_data <- html%>%html_nodes('.text-primary')%>%html_text()
+title_data <- html%>%html_nodes('.lister-item-header a')%>%html_text()
+runtime_data<- html%>%html_nodes('.text-muted .runtime')%>%html_text()
+
+runtime_modified <- str_remove(runtime_data, " min")
+
+movies <- data.frame(rank = as.numeric(rank_data), title = title_data, runtime = as.numeric(runtime_modified), stringsAsFactors = FALSE)
+```
+
+## 1. Виведіть перші 6 назв фільмів дата фрейму.
+
+```{r}
+head(movies$title)
+```
+
+## 2. Виведіть всі назви фільмів с тривалістю більше 120 хв.
+
+```{r}
+filter(movies,movies$runtime>120)
+movies[movies$runtime>120,]
+```
+
+## 3. Скільки фільмів мають тривалість менше 100 хв.
+
+```{r}
+length(which(movies$runtime<100))
+```
